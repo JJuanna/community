@@ -48,7 +48,7 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         User user = hostHolder.getUser();
         if (user != null && modelAndView != null) {
-            // tymeleaf识别不到这个属性名
+            // thymeleaf识别不到这个属性名
             modelAndView.addObject("loginUser", user);
         }
     }
@@ -56,6 +56,9 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         // 清除用户
+        // 清除用户的时机，在执行模板引擎之后执行
+        // 点击上传头像后，就会打印清除用户
+        System.out.println("清除用户");
         hostHolder.clear();
     }
 }
