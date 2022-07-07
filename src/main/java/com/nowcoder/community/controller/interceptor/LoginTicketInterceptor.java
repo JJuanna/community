@@ -6,6 +6,10 @@ import com.nowcoder.community.service.UserService;
 import com.nowcoder.community.util.CookieUtil;
 import com.nowcoder.community.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -39,6 +43,10 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
                 // 在本次请求中持有用户(查到用户之后要在后面用，因此我们查到之后需要暂存，浏览器访问服务器是并发的，每个浏览器访问服务器是一个线程，
                 // 因此我们要考虑线程的隔离)
                 hostHolder.setUser(user);
+                // 构建用户认证的结果,并存入SecurityContext,以便于Security进行授权.
+                Authentication authentication = new UsernamePasswordAuthenticationToken(
+                        user, user.getPassword(), userService.getAuthorities(user.getId()));
+                SecurityContextHolder.setContext(new SecurityContextImpl(authentication));
             }
         }
         return true;
@@ -58,7 +66,9 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
         // 清除用户
         // 清除用户的时机，在执行模板引擎之后执行
         // 点击上传头像后，就会打印清除用户
-        System.out.println("清除用户");
+//        System.out.println("清除用户");
         hostHolder.clear();
+        SecurityContextHolder.clearContext();
+
     }
 }
